@@ -21,6 +21,11 @@ pipeline {
         }
       }
     }
+    stage('SonarQube - SAST') { // new stage
+      steps {
+        sh "mvn clean verify sonar:sonar -Dsonar.projectKey=devsecops-numeric-application -Dsonar.host.url=https://30012-port-c09592d5c9f449f8.labs.kodekloud.com -Dsonar.login=sqp_e7514aefdd892274fe2912806797b2c8bdc25e85"
+      } // change token and address accordinly 
+    }
 
     stage('Docker image build and push') {
       steps {
@@ -28,12 +33,11 @@ pipeline {
         sh 'docker push docker-registry:5000/java-app:latest'
        }
      }
-
     stage('Kubernetes Deployment - DEV') {
       steps {
         sh "sed -i 's#REPLACE_ME#docker-registry:5000/java-app:latest#g' k8s_deployment_service.yaml"
         sh "kubectl apply -f k8s_deployment_service.yaml"
       }
     }
-  }
-}
+   }
+ }
