@@ -15,9 +15,13 @@ spec:
       labels:
         app: devsecops
     spec:
+      serviceAccountName: default
       containers:
-      - image: replace
+      - image: REPLACE_ME
         name: devsecops-container
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 100
 ---
 apiVersion: v1
 kind: Service
