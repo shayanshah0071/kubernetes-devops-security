@@ -55,16 +55,16 @@ pipeline {
         sh 'docker push docker-registry:5000/java-app:latest'
        }
      }
-    stage('Vulnerability Scan - Kubernetes') {
+      stage('Vulnerability Scan - Kubernetes') {
       steps {
-        sh '/usr/local/bin/conftest test --policy opa-k8s-security.rego k8s_deployment_service.yaml'
+        parallel(
+          "OPA Scan": {
+            sh '/usr/local/bin/conftest test --policy opa-k8s-security.rego k8s_deployment_service.yaml'
+          },
+          "Kubesec Scan": {
+            sh "bash kubesec-scan.sh"
+          }
+        )
       }
     }
-    stage('Kubernetes Deployment - DEV') {
-      steps {
-        sh "sed -i 's#REPLACE_ME#docker-registry:5000/java-app:latest#g' k8s_deployment_service.yaml"
-        sh "kubectl apply -f k8s_deployment_service.yaml"
-      }
-    }
-   }
- }
+    
